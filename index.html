@@ -236,7 +236,7 @@
         } else if (e.key === 'ArrowUp') {
           currentPiece.rotate();
           if (checkCollision(currentPiece)) currentPiece.rotation = (currentPiece.rotation - 1) % currentPiece.shape.length;
-        } else if (e.key === 'ArrowDown' && speed ===500)) { 
+        } else if (e.key === 'ArrowDown')) { 
           currentPiece.y++;
           if (checkCollision(currentPiece)) currentPiece.y--; = (currentPiece.rotation - 1) % currentPiece.shape.length;
         }
