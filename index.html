@@ -26,20 +26,20 @@
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
- 
+
     const BLOCK_SIZE = 30;
     const GRID_WIDTH = 10;
     const GRID_HEIGHT = 20;
     const WIDTH = GRID_WIDTH * BLOCK_SIZE;
     const HEIGHT = GRID_HEIGHT * BLOCK_SIZE;
- 
+
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
- 
+
     const COLORS = [
       'cyan', 'red', 'green', 'yellow', 'blue', 'magenta', 'orange'
     ];
- 
+
     const SHAPES = [
       [[[1, 1, 1, 1]], [[1], [1], [1], [1]]], // I (rotates now)
       [[[1, 1], [1, 1]]], // O
@@ -49,11 +49,11 @@
       [[[0, 1, 1], [1, 1, 0]], [[1, 0], [1, 1], [0, 1]]], // S
       [[[1, 1, 0], [0, 1, 1]], [[0, 1], [1, 1], [1, 0]]] // Z
     ];
- 
+
     let grid = Array.from({ length: GRID_HEIGHT }, () => Array(GRID_WIDTH).fill(null));
     let speed = null;
     let gameOverCode = null;
- 
+
     function drawText(message, subMessage = null) {
       ctx.fillStyle = 'black';
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
@@ -66,11 +66,11 @@
         ctx.fillText(subMessage, WIDTH / 2, HEIGHT / 3 + 40);
       }
     }
- 
+
     function askSpeed() {
       return new Promise((resolve) => {
         drawText("Select:", "1. Blue 2. Green 3. Red");
-        function handleSpeedSelection(e) {
+        window.addEventListener('keydown', function handleSpeedSelection(e) {
           if (['1', '2', '3'].includes(e.key)) {
             window.removeEventListener('keydown', handleSpeedSelection);
             if (e.key === '1') {
@@ -84,11 +84,10 @@
               resolve(200);
             }
           }
-        }
-        window.addEventListener('keydown', handleSpeedSelection);
+        });
       });
     }
- 
+
     class Piece {
       constructor(x, y, shape) {
         this.x = x;
@@ -97,22 +96,22 @@
         this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
         this.rotation = 0;
       }
- 
+
       rotate() {
         this.rotation = (this.rotation + 1) % this.shape.length;
       }
- 
+
       get blocks() {
         return this.shape[this.rotation];
       }
     }
- 
+
     function spawnPiece() {
       const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
       const startX = Math.floor((GRID_WIDTH - shape[0][0].length) / 2);
       return new Piece(startX, 0, shape);
     }
- 
+
     function drawGrid() {
       ctx.strokeStyle = 'white';
       for (let x = 0; x <= WIDTH; x += BLOCK_SIZE) {
@@ -128,7 +127,7 @@
         ctx.stroke();
       }
     }
- 
+
     function drawPiece(piece) {
       piece.blocks.forEach((row, i) => {
         row.forEach((cell, j) => {
@@ -139,7 +138,7 @@
         });
       });
     }
- 
+
     function drawGridContents() {
       grid.forEach((row, y) => {
         row.forEach((cell, x) => {
@@ -150,7 +149,7 @@
         });
       });
     }
- 
+
     function checkCollision(piece) {
       return piece.blocks.some((row, i) =>
         row.some((cell, j) => {
@@ -161,7 +160,7 @@
         })
       );
     }
- 
+
     function fixPiece(piece) {
       piece.blocks.forEach((row, i) => {
         row.forEach((cell, j) => {
@@ -171,29 +170,29 @@
         });
       });
     }
- 
+
     function checkGameOverOnRowCompletion() {
       if (grid.some(row => row.every(cell => cell))) {
         return true;
       }
       return false;
     }
- 
+
     function clearRows() {
       const rowsToClear = grid.filter(row => row.every(cell => cell));
       rowsToClear.forEach(() => grid.splice(grid.indexOf(rowsToClear), 1));
       while (grid.length < GRID_HEIGHT) grid.unshift(Array(GRID_WIDTH).fill(null));
     }
- 
+
     async function main() {
       speed = await askSpeed();
       let currentPiece = spawnPiece();
       let lastDropTime = Date.now();
       let gameOver = false;
- 
+
       function gameLoop() {
         if (gameOver) return;
- 
+
         const now = Date.now();
         if (now - lastDropTime > speed) {
           currentPiece.y++;
@@ -217,14 +216,14 @@
           }
           lastDropTime = now;
         }
- 
+
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
         drawGridContents();
         drawGrid();
         drawPiece(currentPiece);
         requestAnimationFrame(gameLoop);
       }
- 
+
       document.addEventListener('keydown', (e) => {
         if (gameOver) return;
         if (e.key === 'ArrowLeft') {
@@ -236,15 +235,14 @@
         } else if (e.key === 'ArrowUp') {
           currentPiece.rotate();
           if (checkCollision(currentPiece)) currentPiece.rotation = (currentPiece.rotation - 1) % currentPiece.shape.length;
-        } else if (e.key === 'ArrowDown')) { 
+        } else if (e.key === 'ArrowDown') {
           currentPiece.y++;
-          if (checkCollision(currentPiece)) currentPiece.y--; = (currentPiece.rotation - 1) % currentPiece.shape.length;
         }
       });
- 
+
       gameLoop();
     }
- 
+
     main();
   </script>
 </body>
