@@ -70,7 +70,7 @@
     function askSpeed() {
       return new Promise((resolve) => {
         drawText("Select:", "1. Blue 2. Green 3. Red");
-        window.addEventListener('keydown', function handleSpeedSelection(e) {
+        function handleSpeedSelection(e) {
           if (['1', '2', '3'].includes(e.key)) {
             window.removeEventListener('keydown', handleSpeedSelection);
             if (e.key === '1') {
@@ -84,7 +84,8 @@
               resolve(200);
             }
           }
-        });
+        }
+        window.addEventListener('keydown', handleSpeedSelection);
       });
     }
  
